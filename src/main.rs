@@ -1,8 +1,8 @@
 // src/main.rs
-// mod lexer;
-// mod parser;
-// mod interpreter;
-// mod error;
+mod lexer;
+mod parser;
+mod interpreter;
+mod error;
 
 use std::env;
 use std::fs;
@@ -25,9 +25,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn execute_js(source: &str) -> Result<(), Box<dyn std::error::Error>> {
-    // This will be implemented as we build our engine
-    println!("Source code to execute: {}", source);
-    // TODO: Tokenize, parse, and evaluate the source
+    // Create a lexer and scan tokens
+    let mut lexer = lexer::Lexer::new(source);
+    let tokens = lexer.scan_tokens()?;
+    
+    // Create a parser and parse the tokens into an AST
+    let mut parser = parser::Parser::new(tokens);
+    let statements = parser.parse()?;
+    
+    // Create an interpreter and execute the AST
+    let mut interpreter = interpreter::Interpreter::new();
+    let result = interpreter.interpret(statements)?;
+    
+    // Print the result if we're not in a block or if the result is not undefined
+    if let interpreter::Value::Undefined = result {
+        // Don't print undefined results
+    } else {
+        println!("=> {:?}", result);
+    }
     
     Ok(())
 }

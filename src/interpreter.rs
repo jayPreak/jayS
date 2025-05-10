@@ -198,7 +198,10 @@ impl Interpreter {
                 }
                 
                 // Restore previous environment
-                self.environment = Rc::clone(&self.environment.borrow().enclosing.as_ref().unwrap());
+                {
+                    let enclosing_env = Rc::clone(&self.environment.borrow().enclosing.as_ref().unwrap());
+                    self.environment = enclosing_env;
+                }
                 
                 Ok(result)
             },
@@ -214,9 +217,11 @@ impl Interpreter {
                 }
             },
             Stmt::While(condition, body) => {
+                let condition_value = self.evaluate(condition)?;
+                
                 let mut result = ExecutionResult::None;
                 
-                while self.is_truthy(&self.evaluate(condition)?) {
+                while self.is_truthy(&condition_value) {
                     result = self.execute(body)?;
                     
                     if let ExecutionResult::Return(_) = result {

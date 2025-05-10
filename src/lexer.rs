@@ -245,7 +245,7 @@ impl<'a> Lexer<'a> {
         
         // Add the token with the string value
         self.tokens.push(Token {
-            token_type: TokenType::String(value),
+            token_type: TokenType::String(value.clone()),
             lexeme: format!("\"{}\"", value),
             line: start_line,
             column: start_column,
